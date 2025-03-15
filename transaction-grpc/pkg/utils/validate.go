@@ -1,4 +1,4 @@
-package utilsvalidate
+package utils
 
 import (
 	"fmt"

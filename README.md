@@ -47,11 +47,12 @@ banking-system
    ```
    docker-compose up --build
    ```
-   Postman collection: `Account.postman_collection.json`
+   Postman collection API-Rest: `Account.postman_collection.json`
+   Postman collection API-GRPC: `Transaction.postman_collection.json`
 
 3. **Access the services**:
    - Account Service: `http://localhost:8081`
-   - Transaction Service: `:50051`
+   - Transaction Service: `grpc://localhost:50051`
 
 ## Endpoints
 

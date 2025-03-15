@@ -19,7 +19,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"John Doe\",\n  \"balance\": 1000\n}"
+					"raw": "{\n  \"name\": \"user demo\",\n  \"balance\": 1000\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8081/accounts",
@@ -41,7 +41,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8081/accounts/:id",
+					"raw": "http://localhost:8081/accounts/c249ff9f-e199-4740-8ef4-0173b7a63f72",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -49,13 +49,7 @@
 					"port": "8081",
 					"path": [
 						"accounts",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id",
-							"value": "<replace-with-account-id>"
-						}
+						"c249ff9f-e199-4740-8ef4-0173b7a63f72"
 					]
 				}
 			},

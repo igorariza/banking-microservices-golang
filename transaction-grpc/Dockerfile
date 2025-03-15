@@ -13,7 +13,7 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go build -ldflags="-s -w" -o rpc/transactionapi rpc/transactionapi.go
+RUN go build -ldflags="-s -w" -o transactionapi rpc/transactionapi.go
 
 
 
