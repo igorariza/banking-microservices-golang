@@ -33,7 +33,7 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 		return nil, errors.New("amount cannot be negative")
 	}
 
-	fromAccount, err := l.TransferMoney(in)
+	fromAccount, err := l.svcCtx.DB.FindOneByName(context.Background(), in.FromAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -43,30 +43,38 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 		return nil, err
 	}
 
-	if fromAccount.Amount < in.Amount {
+	if int64(fromAccount.Amount) < int64(in.Amount) {
 		return nil, errors.New("insufficient balance")
 	}
 
-	fromAccount.Amount -= in.Amount
+	fromAccount.Amount -= float64(in.Amount)
 	toAccount.Amount += float64(in.Amount)
 
 	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount.FromAccount)
+	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount)
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), in.ToAccount)
+	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), &model.Transaction{
+		FromAccount: in.ToAccount,
+		Amount:      float64(in.Amount),
+		Timestamp:   time.Now().String(),
+	})
 	if err != nil {
 		return nil, err
 	}
-	amount := in.Amount
+	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
+	if err != nil {
+		return nil, err
+	}
+
 	utils.PublishTransactionEvent(context.Background(), &model.Transaction{
 		FromAccount: fromAccount.FromAccount,
 		ToAccount:   in.ToAccount,
-		Amount:      float64(amount),
+		Amount:      float64(in.Amount),
 		Timestamp:   time.Now().String(),
 	})
 	return &v1alpha1.TransferMoneyResponse{
