@@ -22,7 +22,7 @@ services:
 
   transaction-service:
     build:
-      context: ./transaction-grpc/rpc
+      context: ./transaction-grpc
       dockerfile: Dockerfile
     ports:
       - "8081:8080"

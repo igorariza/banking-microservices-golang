@@ -55,7 +55,7 @@ func (m *defaultTransactionModel) TransferMoney(ctx context.Context, data *v1alp
 		return nil, err
 	}
 
-	//Resgister transaction
+	m.conn.Database().Collection("transaction")
 	transaction := Transaction{
 		ID:          uuid.New().String(),
 		FromAccount: data.FromAccount,
@@ -64,7 +64,6 @@ func (m *defaultTransactionModel) TransferMoney(ctx context.Context, data *v1alp
 		Timestamp:   time.Now().String(),
 	}
 	_, err = m.conn.InsertOne(ctx, transaction)
-	
 
 	return nil, nil
 }
@@ -76,6 +75,7 @@ func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, dat
 	}
 
 	var result []Transaction
+	m.conn.Database().Collection("transaction")
 	err := m.conn.Find(ctx, bson.M{
 		"$or": []bson.M{
 			{"from_account": data.AccountId},

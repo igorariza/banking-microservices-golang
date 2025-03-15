@@ -44,7 +44,7 @@ func main() {
 func startGRPCServer(ctx *svc.ServiceContext) {
 	var g config.ConfigGrpc
 	g.Name = "transactionapi.rpc"
-	g.ListenOn = ":50051"
+	g.ListenOn = ":50055"
 	conf.MustLoad(*configFile, &g)
 
 	s := zrpc.MustNewServer(g.RpcServerConf, func(grpcServer *grpc.Server) {
