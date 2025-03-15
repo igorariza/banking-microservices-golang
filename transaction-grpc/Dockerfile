@@ -8,10 +8,13 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
+COPY go.mod go.sum ./
+RUN go mod tidy
 
 COPY . .
 
-RUN go mod tidy && go build -ldflags="-s -w" -o . rpc/transactionapi.go 
+RUN go build -ldflags="-s -w" -o rpc/transactionapi rpc/transactionapi.go
+
 
 
 FROM --platform=linux/amd64 alpine:3.16
