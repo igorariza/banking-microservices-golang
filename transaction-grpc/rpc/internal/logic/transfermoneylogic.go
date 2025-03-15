@@ -3,7 +3,10 @@ package logic
 import (
 	"context"
 	"errors"
+	"time"
 
+	model "banking-system/transaction-service/model/mongo/nocache"
+	"banking-system/transaction-service/pkg/utils"
 	"banking-system/transaction-service/rpc/internal/svc"
 	"banking-system/transaction-service/rpc/types/transaction/v1alpha1"
 
@@ -59,7 +62,13 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 	if err != nil {
 		return nil, err
 	}
-
+	amount := in.Amount
+	utils.PublishTransactionEvent(context.Background(), &model.Transaction{
+		FromAccount: fromAccount.FromAccount,
+		ToAccount:   in.ToAccount,
+		Amount:      float64(amount),
+		Timestamp:   time.Now().String(),
+	})
 	return &v1alpha1.TransferMoneyResponse{
 		FromAccount: fromAccount.FromAccount,
 		ToAccount:   in.ToAccount,

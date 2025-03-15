@@ -25,7 +25,7 @@ RUN apk --no-cache add ca-certificates bash
 WORKDIR /root/
 
 COPY --from=builder /app .
-RUN chmod +x events
+RUN chmod +x transactionapi
 
 EXPOSE $PORT
 CMD ["./transactionapi", "-f", "etc/transactionapi.yaml"]

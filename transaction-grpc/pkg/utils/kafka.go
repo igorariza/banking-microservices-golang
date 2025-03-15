@@ -39,7 +39,7 @@ func CreateTopic(brokerAddress, topicName string, numPartitions, replicationFact
 	return nil
 }
 
-func PublishTransactionEvent(ctx context.Context, accountID string) error {
+func PublishTransactionEvent(ctx context.Context, in *model.Transaction) error {
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:  []string{kafkaBroker},
 		Topic:    topic,
@@ -48,7 +48,10 @@ func PublishTransactionEvent(ctx context.Context, accountID string) error {
 	defer writer.Close()
 
 	jsonTransaction, _ := json.Marshal(model.Transaction{
-		ToAccount: accountID,
+		ToAccount:   in.ToAccount,
+		FromAccount: in.FromAccount,
+		Amount:      in.Amount,
+		Timestamp:   in.Timestamp,
 	})
 
 	message := kafka.Message{
@@ -62,6 +65,6 @@ func PublishTransactionEvent(ctx context.Context, accountID string) error {
 		return err
 	}
 
-	log.Printf("published create transaction event: %s", accountID)
+	log.Printf("published create transaction event: %s", jsonTransaction)
 	return nil
 }
