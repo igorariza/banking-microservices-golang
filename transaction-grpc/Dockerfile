@@ -26,4 +26,4 @@ COPY --from=builder /app .
 RUN chmod +x transactionapi
 
 EXPOSE $PORT
-CMD ["./transactionapi", "-f", "etc/transactionapi.yaml"]
+CMD ["./transactionapi", "-f", "rpc/etc/transactionapi.yaml"]
