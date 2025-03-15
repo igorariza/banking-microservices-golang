@@ -16,13 +16,12 @@ spec:
         app: transaction-service
     spec:
       containers:
-        - name: banking-service
+        - name: transaction-service
           image: igorarizadevelop/transaction-service:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - protocol: TCP
-              name: http
-              containerPort: 8080
+            - containerPort: 50051
+              name: transactionport
           resources:
             limits:
               memory: 512Mi

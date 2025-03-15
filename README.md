@@ -50,8 +50,8 @@ banking-system
    Postman collection: `Account.postman_collection.json`
 
 3. **Access the services**:
-   - Account Service: `http://localhost:8080`
-   - Transaction Service: `http://localhost:8081`
+   - Account Service: `http://localhost:8081`
+   - Transaction Service: `:50051`
 
 ## Endpoints
 
