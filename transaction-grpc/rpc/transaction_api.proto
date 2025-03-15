@@ -1,0 +1,39 @@
+syntax = "proto3";
+ 
+package transaction.v1alpha1;
+option go_package = "transaction/v1alpha1";
+ 
+message Transaction {
+  string id = 1;
+  string from_account = 2;
+  string to_account = 3;
+  float amount = 4;
+  string timestamp = 5;
+}
+
+service TransactionAPIService{ 
+  rpc TransferMoney(TransferMoneyRequest) returns (TransferMoneyResponse);
+  rpc GetTransactionHistory(GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse);
+}
+ 
+message TransferMoneyRequest {
+  string from_account = 1;
+  string to_account = 2;
+  float amount = 3;
+}
+
+message TransferMoneyResponse {
+  string id = 1;
+  string from_account = 2;
+  string to_account = 3;
+  float amount = 4;
+  string timestamp = 5;
+}
+
+message GetTransactionHistoryRequest {
+  string account_id = 1;
+}
+
+message GetTransactionHistoryResponse {
+  repeated Transaction transactions = 1;
+}

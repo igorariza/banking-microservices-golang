@@ -1,0 +1,75 @@
+services:
+  account-service:
+    build:
+      context: ./account-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/
+      - MONGODB_DB_NAME=account-service
+      - PORT=:8080
+      - JWT_SECRET=banking-service
+      - KAFKA_BROKER=0.0.0.0:9092
+      - CREATE_ACCOUNT_TOPIC=account_events
+      - GIN_MODE=release
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  # transaction-service:
+  #   build:
+  #     context: ./transaction-service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8082:8080"
+  #   environment:
+  #     - MONGO_URI=mongodb://mongo:3017/transactions
+  #     - KAFKA_BROKER=kafka:9092
+  #     - GIN_MODE=release
+  #   depends_on:
+  #     - mongo
+  #     - kafka
+  #   networks:
+  #     - banking-network
+  #   restart: unless-stoppedmongo:3017
+  
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27018:27017"
+    command: mongod
+    networks:
+      - banking-network
+
+
+  kafka:
+      image: apache/kafka-native
+      container_name: kafka
+      ports:
+        - "9092:9092"
+      environment:
+        # Configure listeners for both docker and host communication
+        KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+        KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+        KAFKA_NODE_ID: 1
+        KAFKA_PROCESS_ROLES: broker,controller
+        KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+        KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+        KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      networks:
+        - banking-network
+
+volumes:
+  mongo-data:
+
+networks:
+  banking-network:
