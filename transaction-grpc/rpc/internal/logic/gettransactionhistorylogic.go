@@ -27,5 +27,7 @@ func (l *GetTransactionHistoryLogic) GetTransactionHistory(in *v1alpha1.GetTrans
 	
 	
 
+	
+
 	return &v1alpha1.GetTransactionHistoryResponse{}, nil
 }
