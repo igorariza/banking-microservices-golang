@@ -9,7 +9,7 @@ ListenOn: :50055
 
   # mongo database settings
 DB:
-  datasource: 'mongodb://localhost:27018'
+  datasource: 'mongodb://localhost:27017'
   databaseName: 'files'
   collectionName: 'firebase'
 
