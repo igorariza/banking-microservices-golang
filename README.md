@@ -47,6 +47,7 @@ banking-system
    ```
    docker-compose up --build
    ```
+   Postman collection: `Account.postman_collection.json`
 
 3. **Access the services**:
    - Account Service: `http://localhost:8080`
