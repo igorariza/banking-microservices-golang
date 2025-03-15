@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
 	"os"
 
@@ -9,10 +10,10 @@ import (
 	"banking-system/transaction-service/pkg/secrets"
 	"banking-system/transaction-service/rpc/internal/config"
 	"banking-system/transaction-service/rpc/internal/constants"
-	"banking-system/transaction-service/rpc/internal/handler"
 	"banking-system/transaction-service/rpc/internal/server"
 	"banking-system/transaction-service/rpc/internal/svc"
 	"banking-system/transaction-service/rpc/types/transaction/v1alpha1"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -25,38 +26,29 @@ import (
 var configFile = flag.String("f", "etc/transactionapi.yaml", "the config file")
 
 func main() {
-	// Load secrets and parse flags
+
 	secrets.LoadSecrets()
 	flag.Parse()
 
-	// Retrieve MongoDB connection information from environment variables
 	mongo_uri := os.Getenv("MONGODB_URI")
 	db_name := os.Getenv("MONGODB_DB_NAME")
 	collection := constants.COLLECTION
 
-	// Initialize MongoDB connection and context
-	db := model.NewAccountModel(mongo_uri, db_name, collection)
+	db := model.NewTransactionModel(mongo_uri, db_name, collection)
 	cfg := getServiceConfig()
 	ctx := svc.NewServiceContext(*cfg, db)
+	startGRPCServer(ctx)
 
-	// Start gRPC server in a goroutine
-	go func() {
-		startGRPCServer(ctx)
-	}()
-
-	// Start REST server
-	startRESTServer(ctx)
 }
 
-// Function to start gRPC server
 func startGRPCServer(ctx *svc.ServiceContext) {
 	var g config.ConfigGrpc
-	g.Name = "transaction.rpc"
+	g.Name = "transactionapi.rpc"
 	g.ListenOn = ":50051"
 	conf.MustLoad(*configFile, &g)
 
 	s := zrpc.MustNewServer(g.RpcServerConf, func(grpcServer *grpc.Server) {
-		v1alpha1.RegisterAccountAPIServiceServer(grpcServer, server.NewAccountAPIServiceServer(ctx))
+		v1alpha1.RegisterTransactionAPIServiceServer(grpcServer, server.NewTransactionAPIServiceServer(ctx))
 
 		if ctx.Config.Mode == service.DevMode || ctx.Config.Mode == service.TestMode {
 			reflection.Register(grpcServer)
@@ -64,24 +56,8 @@ func startGRPCServer(ctx *svc.ServiceContext) {
 	})
 	defer s.Stop()
 
-	log.print(constants.START_SERVER, g.ListenOn)
+	log.Println(constants.START_SERVER, g.ListenOn)
 	s.Start()
-}
-
-// Function to start REST server
-func startRESTServer(ctx *svc.ServiceContext) {
-	c := getServiceConfig()
-
-	server := rest.MustNewServer(c.RestConf)
-	defer server.Stop()
-	
-	// Middleware para habilitar CORS
-	server.Use(corsMiddleware())
-
-	handler.RegisterHandlers(server, ctx)
-
-	log.print(constants.START_SERVER, c.Host, c.Port)
-	server.Start()
 }
 
 func corsMiddleware() rest.Middleware {

@@ -10,7 +10,7 @@ ENV GOARCH=amd64
 
 COPY . .
 
-RUN go mod tidy -compat=1.20 && go build -ldflags="-s -w" -o . rpc/transaction.go
+RUN go mod tidy -compat=1.20 && go build -ldflags="-s -w" -o . rpc/transactionapi.go
 
 
 FROM --platform=linux/amd64 alpine:3.16
@@ -21,7 +21,7 @@ RUN apk --no-cache add ca-certificates bash
 WORKDIR /root/
 
 COPY --from=builder /app .
-RUN chmod +x transaction
+RUN chmod +x transactionapi
 
 EXPOSE $PORT
-CMD ["./transaction", "-f", "rpc/etc/transaction.yaml"]
+CMD ["./transactionapi", "-f", "rpc/etc/transactionap.yaml"]

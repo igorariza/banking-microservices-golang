@@ -10,7 +10,7 @@ services:
       - MONGODB_DB_NAME=account-service
       - PORT=:8080
       - JWT_SECRET=banking-service
-      - KAFKA_BROKER=0.0.0.0:9092
+      - KAFKA_BROKER=DOCKER://0.0.0.0:9093
       - CREATE_ACCOUNT_TOPIC=account_events
       - GIN_MODE=release
     depends_on:
@@ -20,22 +20,26 @@ services:
       - banking-network
     restart: unless-stopped
 
-  # transaction-service:
-  #   build:
-  #     context: ./transaction-service
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8082:8080"
-  #   environment:
-  #     - MONGO_URI=mongodb://mongo:3017/transactions
-  #     - KAFKA_BROKER=kafka:9092
-  #     - GIN_MODE=release
-  #   depends_on:
-  #     - mongo
-  #     - kafka
-  #   networks:
-  #     - banking-network
-  #   restart: unless-stoppedmongo:3017
+  transaction-service:
+    build:
+      context: ./transaction-grpc/rpc
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/
+      - MONGODB_DB_NAME=transaction-service
+      - PORT=:8080
+      - JWT_SECRET=banking-service
+      - KAFKA_BROKER=DOCKER://0.0.0.0:9093
+      - CREATE_TRANSACTION_TOPIC=transaction_events
+      - GIN_MODE=release
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - banking-network
+    restart: unless-stopped
   
   mongo:
     image: mongo:latest

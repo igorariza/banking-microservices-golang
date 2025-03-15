@@ -25,7 +25,7 @@ banking-system
 │   ├── go.mod
 │   ├── go.sum
 │   └── README.md
-├── transaction-service
+├── transaction-rpc
 │   ├── src
 │   ├── Dockerfile
 │   ├── go.mod
@@ -39,8 +39,8 @@ banking-system
 
 1. **Clone the repository**:
    ```
-   git clone <repository-url>
-   cd banking-system
+   git clone https://github.com/igorariza/banking-microservices-golang.git
+   cd banking-microservices-golang
    ```
 
 2. **Build and run the services using Docker Compose**:
@@ -62,18 +62,10 @@ banking-system
 - **POST /transactions**: Transfer money between accounts.
 - **GET /transactions/{account_id}**: Retrieve transaction history for an account.
 
-## Testing
-
-The project includes unit and integration tests for both services. To run the tests, navigate to each service directory and execute:
-```
-go test ./...
-```
 
 ## Extras
 
 - **gRPC**: Consider implementing gRPC for optimized communication between services.
-- **Circuit Breaker**: Implement resilience patterns for better fault tolerance.
-- **Cache**: Use Redis for caching frequently accessed data.
 - **Kubernetes**: For scalable deployment in production environments.
 
 ## License

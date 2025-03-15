@@ -8,7 +8,7 @@ ctl:
 	@cd ./rpc && goctl rpc protoc  transaction_api.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
 
 go-ctl:
-	@cd ./rpc && go run transaction.go -f etc/transaction.yaml
+	@cd ./rpc && go run transactionapi.go -f etc/transactionapi.yaml
 
 coverage:
 	@echo "Coverfile... required 60% coverage"

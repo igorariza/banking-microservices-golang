@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"errors"
 
 	"banking-system/transaction-service/rpc/internal/svc"
 	"banking-system/transaction-service/rpc/types/transaction/v1alpha1"
@@ -24,41 +25,44 @@ func NewTransferMoneyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Tra
 }
 
 func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*v1alpha1.TransferMoneyResponse, error) {
-	// (fromAccountID string, toAccountID string, amount float64) (string, error) {
-	// 	if amount < 0 {
-	// 		return "", errors.New("amount cannot be negative")
-	// 	}
-	
-	// 	fromAccount, err := s.GetAccountBalance(fromAccountID)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	
-	// 	toAccount, err := s.GetAccountBalance(toAccountID)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	
-	// 	if fromAccount < amount {
-	// 		return "", errors.New("insufficient balance")
-	// 	}
-	
-	// 	fromAccount -= amount
-	// 	toAccount += amount
-	
-	// 	_, err = s.Client.Database(s.Database.Name()).Collection("accounts").UpdateOne(context.Background(), bson.M{"id": fromAccountID},
-	// 		bson.M{"$set": bson.M{"balance": fromAccount}})
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	
-	// 	_, err = s.Client.Database(s.Database.Name()).Collection("accounts").UpdateOne(context.Background(), bson.M{"id": toAccountID},
-	// 		bson.M{"$set": bson.M{"balance": toAccount}})
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	
-	// 	return uuid.New().String(), nil
 
-	return &v1alpha1.TransferMoneyResponse{}, nil
+	if in.Amount < 0 {
+		return nil, errors.New("amount cannot be negative")
+	}
+
+	fromAccount, err := l.TransferMoney(in)
+	if err != nil {
+		return nil, err
+	}
+
+	toAccount, err := l.svcCtx.DB.FindOneByName(context.Background(), in.ToAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	if fromAccount.Amount < in.Amount {
+		return nil, errors.New("insufficient balance")
+	}
+
+	fromAccount.Amount -= in.Amount
+	toAccount.Amount += float64(in.Amount)
+
+	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount.FromAccount)
+	if err != nil {
+		return nil, err
+	}
+	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), in.ToAccount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v1alpha1.TransferMoneyResponse{
+		FromAccount: fromAccount.FromAccount,
+		ToAccount:   in.ToAccount,
+		Amount:      in.Amount,
+	}, nil
 }

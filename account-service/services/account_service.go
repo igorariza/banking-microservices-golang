@@ -54,10 +54,8 @@ func (s *AccountService) CreateAccount(account models.Account) (*models.Account,
 	if err != nil {
 		return nil, err
 	}
-	err = utils.PublishAccountEvent(context.Background(), account.ID)
-	if err != nil {
-		return nil, err
-	}
+	utils.PublishAccountEvent(context.Background(), account.ID)
+	
 
 	return &models.Account{
 		ID:       account.ID,
@@ -80,11 +78,8 @@ func (s *AccountService) GetAccountBalance(id string) (float64, error) {
 		return 0, err
 	}
 
-	err = utils.PublishAccountEvent(context.Background(), account.ID)
-	if err != nil {
-		return 0, err
-	}
-
+	utils.PublishAccountEvent(context.Background(), account.ID)
+	
 	return account.Balance, nil
 }
 

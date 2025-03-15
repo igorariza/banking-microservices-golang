@@ -11,21 +11,23 @@ import (
 
 var client v1alpha1.TransactionAPIServiceClient
 var doOnce sync.Once
-var accounterviceUri string
-var accounterviceTimeout string
+var transactionerviceUri string
+var transactionerviceTimeout string
 
 func init() {
 
 	doOnce.Do(func() {
-		accounterviceTimeout = os.Getenv("NOTIFICATION_ACCOUNT_TIMEOUT")
-		if accounterviceTimeout == "" {
-			accounterviceTimeout = "30s"
+		transactionerviceTimeout = os.Getenv("NOTIFICATION_TRANSACTION_TIMEOUT")
+		if transactionerviceTimeout == "" {
+			transactionerviceTimeout = "30s"
 		}
-		accounterviceUri = os.Getenv("NOTIFICATION_ACCOUNT_URI")
-		con, err := grpc.Dial(accounterviceUri, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		transactionerviceUri = os.Getenv("NOTIFICATION_TRANSACTION_URI")
+		con, err := grpc.Dial(transactionerviceUri, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			panic(err)
 		}
-		client = v1alpha1.NewAccountAPIServiceClient(con)
+		client = v1alpha1.NewTransactionAPIServiceClient(con)
 	})
 }
+
+//Todo: Add the function to call the gRPC service
