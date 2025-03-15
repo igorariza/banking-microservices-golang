@@ -13,11 +13,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	// err := router.SetTrustedProxies([]string{"127.0.0.1", "0.0.0.0", "192.168.1.0/24", os.Getenv("KAFKA_BROKER")})
-	// if err != nil {
-	// 	log.Fatalf("Error setting trusted proxies %v", err)
-	// 	return
-	// }
+
 
 	err := utils.CreateTopic(os.Getenv("KAFKA_BROKER"), os.Getenv("CREATE_ACCOUNT_TOPIC"), 3, 1)
 	if err != nil {

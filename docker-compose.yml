@@ -7,7 +7,7 @@ services:
       - "8081:8080"
     environment:
       - MONGODB_URI=mongodb://mongo:27017/
-      - MONGODB_DB_NAME=account-service
+      - MONGODB_DB_NAME=banking-service
       - PORT=:8080
       - JWT_SECRET=banking-service
       - KAFKA_BROKER=kafka:9093
@@ -28,7 +28,7 @@ services:
       - "8081:8080"
     environment:
       - MONGODB_URI=mongodb://mongo:27017/
-      - MONGODB_DB_NAME=transaction-service
+      - MONGODB_DB_NAME=banking-service
       - PORT=:8080
       - JWT_SECRET=banking-service
       - KAFKA_BROKER=kafka:9093
