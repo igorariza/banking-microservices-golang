@@ -10,8 +10,9 @@ ENV GOARCH=amd64
 ENV GOPRIVATE=banking-system/*
 
 COPY . .
-COPY .env .env
+# Only for testing purposes
 COPY .envrc .envrc
+# Only for testing purposes 
 RUN source .envrc
 RUN echo "go mod tidy -compat=1.20"
 RUN go mod tidy && go build
