@@ -25,7 +25,7 @@ services:
       context: ./transaction-grpc
       dockerfile: Dockerfile
     ports:
-      - "50055:50051"
+      - "50055:50055"
     environment:
       - MONGODB_URI=mongodb://mongo:27017/
       - MONGODB_DB_NAME=banking-service
