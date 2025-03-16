@@ -30,11 +30,8 @@ func main() {
 
 	secrets.LoadSecrets()
 	flag.Parse()
-	err := utils.CreateTopic(os.Getenv("KAFKA_BROKER"), os.Getenv("CREATE_TRANSACTION_TOPIC"), 3, 1)
-	if err != nil {
-		log.Fatalf("Error creating topic kafka%v", err)
-		return
-	}
+	utils.CreateTopic(os.Getenv("KAFKA_BROKER"), os.Getenv("CREATE_TRANSACTION_TOPIC"), 3, 1)
+
 
 	mongo_uri := os.Getenv("MONGODB_URI")
 	db_name := os.Getenv("MONGODB_DB_NAME")
