@@ -52,7 +52,18 @@ banking-system
 
 3. **Access the services**:
    - Account Service: `http://localhost:8081`
-   - Transaction Service: `grpc://localhost:50051`
+   - Transaction Service: `grpc://localhost:50055`
+  Transfer Money Grpc
+   {
+      "from_account": "9c80ff19-f253-4d0f-bb65-c2636ca5967e",
+      "to_account": "58cf0f8a-8dfe-412b-a1d0-628d53f71e18",
+      "amount": 104
+   }
+
+   GetHistory Grpc
+   {
+      "account_id": "c249ff9f-e199-4740-8ef4-0173b7a63f72"
+   }
 
 ## Endpoints
 
