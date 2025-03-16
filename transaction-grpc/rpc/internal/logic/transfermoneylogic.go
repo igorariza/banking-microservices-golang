@@ -43,30 +43,16 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 		return nil, err
 	}
 
-	if int64(fromAccount.Amount) < int64(in.Amount) {
+	if int64(fromAccount.Balance) < int64(in.Amount) {
 		return nil, errors.New("insufficient balance")
 	}
 
-	fromAccount.Amount -= float64(in.Amount)
-	toAccount.Amount += float64(in.Amount)
-
+	fromAccount.Balance -= float64(in.Amount)
+	toAccount.Balance += float64(in.Amount)
 	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount)
-	if err != nil {
-		return nil, err
-	}
-	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount)
-	if err != nil {
-		return nil, err
-	}
-	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
-	if err != nil {
-		return nil, err
-	}
-
 	utils.PublishTransactionEvent(context.Background(), &model.Transaction{
 		FromAccount: in.FromAccount,
 		ToAccount:   in.ToAccount,
