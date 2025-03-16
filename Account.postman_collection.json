@@ -10,6 +10,16 @@
 		{
 			"name": "Create Account",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJzZGVtbyIsImV4cCI6MTc0MjIzOTIxNH0.y29pARCLEJ7jPamr7yBJ_peyGfqwKkzbuJzpHTSgVE0",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [
 					{
@@ -19,7 +29,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"name\": \"user demo\",\n  \"balance\": 1000\n}"
+					"raw": "{\n  \"name\": \"usersdemo\",\n  \"balance\": 1000\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8081/accounts",
@@ -38,6 +48,16 @@
 		{
 			"name": "Get Account Balance",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXJzZGVtbyIsImV4cCI6MTc0MjIzOTIxNH0.y29pARCLEJ7jPamr7yBJ_peyGfqwKkzbuJzpHTSgVE0",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -50,6 +70,34 @@
 					"path": [
 						"accounts",
 						"c249ff9f-e199-4740-8ef4-0173b7a63f72"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"usersdemo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/generate_token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"generate_token"
 					]
 				}
 			},

@@ -3,6 +3,7 @@ package routes
 import (
 	"banking-system/account-service/controllers"
 	"banking-system/account-service/services"
+	"banking-system/account-service/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,6 +12,12 @@ import (
 func SetupAccountRoutes(router *gin.Engine, db *mongo.Database) {
 	accountService := services.NewAccountService(db)
 	accountController := controllers.NewAccountController(accountService)
-	router.POST("/accounts", accountController.CreateAccount)
-	router.GET("/accounts/:id", accountController.GetAccountBalance)
+
+	router.POST("/generate_token", accountController.GenerateToken)
+	protected := router.Group("/accounts")
+	protected.Use(utils.JWTMiddleware())
+	{
+		protected.POST("", accountController.CreateAccount)
+		protected.GET("/:id", accountController.GetAccountBalance)
+	}
 }
