@@ -58,11 +58,7 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 	if err != nil {
 		return nil, err
 	}
-	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), &model.Transaction{
-		FromAccount: in.ToAccount,
-		Amount:      float64(in.Amount),
-		Timestamp:   time.Now().String(),
-	})
+	_, err = l.svcCtx.DB.UpdateAccountBalance(context.Background(), fromAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +68,13 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 	}
 
 	utils.PublishTransactionEvent(context.Background(), &model.Transaction{
-		FromAccount: fromAccount.FromAccount,
+		FromAccount: in.FromAccount,
 		ToAccount:   in.ToAccount,
 		Amount:      float64(in.Amount),
 		Timestamp:   time.Now().String(),
 	})
 	return &v1alpha1.TransferMoneyResponse{
-		FromAccount: fromAccount.FromAccount,
+		FromAccount: in.FromAccount,
 		ToAccount:   in.ToAccount,
 		Amount:      in.Amount,
 	}, nil

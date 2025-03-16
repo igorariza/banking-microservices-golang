@@ -65,7 +65,9 @@ func (m *defaultTransactionModel) TransferMoney(ctx context.Context, data *v1alp
 	}
 	_, err = m.conn.InsertOne(ctx, transaction)
 
-	return nil, nil
+	return &v1alpha1.TransferMoneyResponse{
+		Id: transaction.ID,
+	}, nil
 }
 
 func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, data *v1alpha1.GetTransactionHistoryRequest) (*v1alpha1.GetTransactionHistoryResponse, error) {
