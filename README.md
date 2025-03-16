@@ -52,6 +52,20 @@ banking-system
 
 3. **Access the services**:
    - Account Service: `http://localhost:8081`
+   . Solicitar Token de Acceso
+      Para obtener el token, realiza una solicitud POST al servicio de autenticación:
+
+   POST  http://localhost:8081/generate_token
+   ````
+   {
+      "name": "userdemo"
+   }
+   ````
+
+   Usar el Token en las Solicitudes
+
+      Authorization: Bearer <token>
+   Content-Type: application/json
 
    - Transaction Service: `grpc://localhost:50055`
   Transfer Money Grpc
