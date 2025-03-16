@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -73,34 +74,35 @@ func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, dat
 		log.Println("account is required")
 		return nil, errors.New("account is required")
 	}
-
-	var result []Transaction
-	m.conn.Database().Collection("transaction")
-	err := m.conn.Find(ctx, bson.M{
-		"$or": []bson.M{
-			{"from_account": data.AccountId},
-			{"to_account": data.AccountId},
-		},
-	}, &result)
+	rsp := &v1alpha1.GetTransactionHistoryResponse{}
+	filter := bson.D{{"id", data.AccountId}}
+	cursor, err := m.conn.Database().Collection("transactions").Find(ctx, filter)
 	if err != nil {
-		log.Printf("failed to fetch transaction history for account %s: %v", data.AccountId, err)
-		return nil, err
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
 	}
+	defer cursor.Close(ctx)
 
 	var transactions []*v1alpha1.Transaction
-	for _, t := range result {
+	for cursor.Next(ctx) {
+		var txn Transaction
+		if err := cursor.Decode(&txn); err != nil {
+			return nil, fmt.Errorf("error decoding transaction: %w", err)
+		}
+
 		transactions = append(transactions, &v1alpha1.Transaction{
-			Id:          t.ID,
-			FromAccount: t.FromAccount,
-			ToAccount:   t.ToAccount,
-			Amount:      float32(t.Amount),
-			Timestamp:   t.Timestamp,
+			Id:          txn.ID,
+			FromAccount: txn.FromAccount,
+			ToAccount:   txn.ToAccount,
+			Amount:      float32(txn.Amount),
+			Timestamp:   txn.Timestamp,
 		})
 	}
 
-	return &v1alpha1.GetTransactionHistoryResponse{
-		Transactions: transactions,
-	}, nil
+	rsp.Transactions = transactions
+
+	return rsp, nil
 }
 
 func (m *defaultTransactionModel) UpdateAccountBalance(ctx context.Context, account *Account) (*Account, error) {

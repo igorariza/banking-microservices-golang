@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"banking-system/transaction-service/rpc/internal/svc"
 	"banking-system/transaction-service/rpc/types/transaction/v1alpha1"
@@ -24,10 +26,13 @@ func NewGetTransactionHistoryLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 func (l *GetTransactionHistoryLogic) GetTransactionHistory(in *v1alpha1.GetTransactionHistoryRequest) (*v1alpha1.GetTransactionHistoryResponse, error) {
-	
-	
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-	
+	trs, err := l.svcCtx.DB.GetTransactionHistory(ctx, in)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving transaction history: %w", err)
+	}
 
-	return &v1alpha1.GetTransactionHistoryResponse{}, nil
+	return trs, nil
 }
