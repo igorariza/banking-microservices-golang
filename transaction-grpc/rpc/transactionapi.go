@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -29,9 +29,9 @@ var configFile = flag.String("f", "etc/transactionapi.yaml", "the config file")
 func main() {
 
 	secrets.LoadSecrets()
+	corsMiddleware()
 	flag.Parse()
 	utils.CreateTopic(os.Getenv("KAFKA_BROKER"), os.Getenv("CREATE_TRANSACTION_TOPIC"), 3, 1)
-
 
 	mongo_uri := os.Getenv("MONGODB_URI")
 	db_name := os.Getenv("MONGODB_DB_NAME")
@@ -59,7 +59,7 @@ func startGRPCServer(ctx *svc.ServiceContext) {
 	})
 	defer s.Stop()
 
-	log.Println(constants.START_SERVER, g.ListenOn)
+	fmt.Printf("%s %s\n", constants.START_SERVER, g.ListenOn)
 	s.Start()
 }
 
