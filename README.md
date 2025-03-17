@@ -52,17 +52,17 @@ banking-system
 
 3. **Access the services**:
    - Account Service: `http://localhost:8081`
-   . Solicitar Token de Acceso
-      Para obtener el token, realiza una solicitud POST al servicio de autenticación:
+   - Request Access Token
+      To obtain the token, make a POST request to the authentication service:
 
-   POST  http://localhost:8081/generate_token
+   POST http://localhost:8081/generate_token
    ````
    {
-      "name": "userdemo"
+      “name": ”userdemo”
    }
    ````
 
-   Usar el Token en las Solicitudes
+   Using the Token in Requests
 
       Authorization: Bearer <token>
    Content-Type: application/json
