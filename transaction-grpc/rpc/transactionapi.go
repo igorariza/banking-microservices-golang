@@ -29,7 +29,7 @@ var configFile = flag.String("f", "etc/transactionapi.yaml", "the config file")
 func main() {
 
 	secrets.LoadSecrets()
-	corsMiddleware()
+	//corsMiddleware()
 	flag.Parse()
 	utils.CreateTopic(os.Getenv("KAFKA_BROKER"), os.Getenv("CREATE_TRANSACTION_TOPIC"), 3, 1)
 
