@@ -1,14 +1,12 @@
 package services
 
 import (
+	"banking-system/account-service/data"
 	"banking-system/account-service/data/models"
 	"banking-system/account-service/utils"
 	"context"
 	"errors"
-	"time"
 
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,53 +22,26 @@ func NewAccountService(db *mongo.Database) *AccountService {
 	}
 }
 
-func validateIfExistAccountName(s *AccountService, name string) (bool, error) {
-	var account models.Account
-	account_name := s.Database.Collection("accounts")
-	filter := bson.M{"name": name}
-	err := account_name.FindOne(context.Background(), filter).Decode(&account)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
-}
-
 func (s *AccountService) CreateAccount(account models.Account) (*models.Account, error) {
-
-	if exist, err := validateIfExistAccountName(s, account.Name); exist {
-		return nil, errors.New("account name already exists")
-	} else if err != nil {
-		return nil, err
-	}
-
-	account.ID = uuid.New().String()
-	account.CreateAt = time.Now().String()
-	account.UpdateAt = time.Now().String()
-
-	_, err := s.Client.Database(s.Database.Name()).Collection("accounts").InsertOne(context.Background(), account)
+	create, err := data.CreateAccount(s.Client)
 	if err != nil {
 		return nil, err
 	}
 	utils.PublishAccountEvent(context.Background(), account.ID)
-	
 
 	return &models.Account{
-		ID:       account.ID,
-		Name:     account.Name,
-		Balance:  account.Balance,
-		CreateAt: account.CreateAt,
-		UpdateAt: account.UpdateAt,
+		ID:       create.ID,
+		Name:     create.Name,
+		Balance:  create.Balance,
+		CreateAt: create.CreateAt,
+		UpdateAt: create.UpdateAt,
 	}, nil
 }
 
 func (s *AccountService) GetAccountBalance(id string) (float64, error) {
 	var account models.Account
-
-	err := s.Client.Database(s.Database.Name()).Collection("accounts").FindOne(context.Background(), bson.M{"id": id}).
-		Decode(&account)
+	account.ID = id
+	_, err := data.GetAccountBalance(s.Client, account)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return 0, errors.New("account not found")
@@ -79,6 +50,6 @@ func (s *AccountService) GetAccountBalance(id string) (float64, error) {
 	}
 
 	utils.PublishAccountEvent(context.Background(), account.ID)
-	
+
 	return account.Balance, nil
 }
