@@ -18,7 +18,7 @@ func ValidateCreateAccount(account models.Account) error {
 	}
 
 	if !regexp.MustCompile(regexName).MatchString(account.Name) {
-		stringArray = append(stringArray, "account name is invalid")
+		stringArray = append(stringArray, "account name is invalid (only lowercase letters, numbers, hyphen, and underscore are allowed)")
 	}
 	if account.Name == "" {
 		stringArray = append(stringArray, "account name cannot be empty")
