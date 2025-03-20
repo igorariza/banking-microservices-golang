@@ -23,7 +23,7 @@ func NewAccountService(db *mongo.Database) *AccountService {
 }
 
 func (s *AccountService) CreateAccount(account models.Account) (*models.Account, error) {
-	create, err := data.CreateAccount(s.Client)
+	create, err := data.CreateAccount(s.Client, &account)
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +41,14 @@ func (s *AccountService) CreateAccount(account models.Account) (*models.Account,
 func (s *AccountService) GetAccountBalance(id string) (float64, error) {
 	var account models.Account
 	account.ID = id
-	_, err := data.GetAccountBalance(s.Client, account)
+	bl, err := data.GetAccountBalance(s.Client, account)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return 0, errors.New("account not found")
 		}
 		return 0, err
 	}
+	account.Balance = bl	
 
 	utils.PublishAccountEvent(context.Background(), account.ID)
 
