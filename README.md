@@ -95,7 +95,8 @@ banking-system
 
 - **gRPC**: Consider implementing gRPC for optimized communication between services.
 - **Kubernetes**: For scalable deployment in production environments.
-
+- **Circuite Breaker**: Implement a circuit breaker pattern to handle failures and latency issues.
+- **Monitoring and observability**: Use tools like Prometheus, elastic search, datadog, for monitoring and logging.
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
