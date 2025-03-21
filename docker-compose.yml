@@ -13,9 +13,18 @@ services:
       - KAFKA_BROKER=kafka:9093
       - CREATE_ACCOUNT_TOPIC=account_events
       - GIN_MODE=release
+      - ELASTIC_URL=http://elasticsearch:9200
+      - DD_API_KEY=banking-service
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_APM_ENABLED=true
+      - STATSD_URL=datadog:8125
     depends_on:
       - mongo
       - kafka
+      - datadog
+      - elasticsearch
+      - prometheus
     networks:
       - banking-network
     restart: unless-stopped
@@ -74,6 +83,9 @@ services:
   datadog:
     image: gcr.io/datadoghq/agent:latest
     container_name: datadog
+    ports:
+      - "8125:8125/udp"
+      - "8126:8126"
     environment:
       - DD_API_KEY=banking-service
       - DD_SITE=datadoghq.com

@@ -4,4 +4,8 @@ global:
 scrape_configs:
   - job_name: "docker"
     static_configs:
-      - targets: ["datadog:8125", "elasticsearch:9200"]
+      - targets:
+          - "localhost:8125"
+          - "localhost:9200"
+          - "localhost:8081"
+          - "transaction-service:50055"
