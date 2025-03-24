@@ -58,7 +58,6 @@ func CreateAccount(client *mongo.Client, ac *models.Account) (*models.Account, e
 }
 func GetAccountBalance(client *mongo.Client, ac models.Account) (float64, error) {
 	var account models.Account
-	fmt.Println("ac.Id", ac.ID)
 	filter := bson.D{{"id", ac.ID}}
 	db := client.Database(os.Getenv("MONGODB_DB_NAME"))
 	err := db.Collection("accounts").FindOne(context.Background(), filter).Decode(&account)

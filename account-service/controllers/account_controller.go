@@ -18,20 +18,36 @@ func NewAccountController(accountService *services.AccountService) *AccountContr
 }
 
 func (c *AccountController) CreateAccount(ctx *gin.Context) {
-	var account models.Account
+	var account *models.Account
 	if err := ctx.ShouldBindJSON(&account); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
-	validate_account := utils.ValidateCreateAccount(account)
-	if validate_account != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": validate_account.Error()})
+	validateChan := make(chan error)
+	go func() {
+		validateChan <- utils.ValidateCreateAccount(*account)
+	}()
+
+	createChan := make(chan *models.Account)
+	errorChan := make(chan error)
+	go func() {
+		createdAccount, err := c.accountService.CreateAccount(*account)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		createChan <- createdAccount
+	}()
+	validateErr := <-validateChan
+	if validateErr != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": validateErr.Error()})
 		return
 	}
-
-	createdAccount, err := c.accountService.CreateAccount(account)
-	if err != nil {
+	var createdAccount *models.Account
+	select {
+	case createdAccount = <-createChan:
+	case err := <-errorChan:
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -41,13 +57,28 @@ func (c *AccountController) CreateAccount(ctx *gin.Context) {
 
 func (c *AccountController) GetAccountBalance(ctx *gin.Context) {
 	id := ctx.Param("id")
-	balance, err := c.accountService.GetAccountBalance(id)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Account not found"})
-		return
-	}
+	balanceChan := make(chan float64)
+	errorChan := make(chan error)
+	go func() {
+		select {
+		case <-ctx.Done():
+			errorChan <- ctx.Err()
+		default:
+			balance, err := c.accountService.GetAccountBalance(id)
+			if err != nil {
+				errorChan <- err
+				return
+			}
+			balanceChan <- balance
+		}
+	}()
 
-	ctx.JSON(http.StatusOK, gin.H{"balance": balance})
+	select {
+	case balance := <-balanceChan:
+		ctx.JSON(http.StatusOK, gin.H{"balance": balance})
+	case err := <-errorChan:
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Account not found", "details": err.Error()})
+	}
 }
 
 func (c *AccountController) GenerateToken(ctx *gin.Context) {
@@ -56,7 +87,20 @@ func (c *AccountController) GenerateToken(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user name"})
 		return
 	}
-	tk, _ := utils.GenerateToken(account.Name)
-
-	ctx.JSON(http.StatusOK, gin.H{"token": tk})
+	tokenChan := make(chan string)
+	errorChan := make(chan error)
+	go func() {
+		token, err := utils.GenerateToken(account.Name)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		tokenChan <- token
+	}()
+	select {
+	case token := <-tokenChan:
+		ctx.JSON(http.StatusOK, gin.H{"token": token})
+	case err := <-errorChan:
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token", "details": err.Error()})
+	}
 }

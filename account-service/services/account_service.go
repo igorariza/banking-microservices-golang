@@ -56,7 +56,7 @@ func (s *AccountService) CreateAccount(account models.Account) (*models.Account,
 
 	if err != nil {
 		log.Printf("Error creating account: %v", err)
-		return nil, errors.New("service unavailable")
+		return nil, errors.New(err.Error())
 	}
 
 	return acc.(*models.Account), nil
@@ -69,7 +69,7 @@ func (s *AccountService) GetAccountBalance(id string) (float64, error) {
 		bl, err := data.GetAccountBalance(s.Client, account)
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
-				return 0, errors.New("account not found")
+				return 0, errors.New(err.Error())
 			}
 			return 0, err
 		}
