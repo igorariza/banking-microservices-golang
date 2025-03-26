@@ -34,6 +34,7 @@ services:
       - KAFKA_BROKER=kafka:9093
       - CREATE_TRANSACTION_TOPIC=transaction_events
       - GIN_MODE=release
+      - TRANSACTION_API_PORT=:50055
     depends_on:
       - mongo
       - kafka

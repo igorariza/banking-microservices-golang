@@ -33,35 +33,25 @@ func (l *TransferMoneyLogic) TransferMoney(in *v1alpha1.TransferMoneyRequest) (*
 		return nil, errors.New("amount cannot be negative")
 	}
 
-	fromAccount, err := l.svcCtx.DB.FindOneByName(context.Background(), in.FromAccount)
+	trc, err := l.svcCtx.DB.TransferMoney(context.Background(), in)
 	if err != nil {
 		return nil, err
 	}
 
-	toAccount, err := l.svcCtx.DB.FindOneByName(context.Background(), in.ToAccount)
-	if err != nil {
-		return nil, err
-	}
+	go func() {
+		utils.PublishTransactionEvent(context.Background(), &model.Transaction{
+			FromAccount: in.FromAccount,
+			ToAccount:   in.ToAccount,
+			Amount:      float64(in.Amount),
+			Timestamp:   time.Now().String(),
+		})
+	}()
 
-	if int64(fromAccount.Balance) < int64(in.Amount) {
-		return nil, errors.New("insufficient balance")
-	}
-
-	fromAccount.Balance -= float64(in.Amount)
-	toAccount.Balance += float64(in.Amount)
-	_, err = l.svcCtx.DB.TransferMoney(context.Background(), in)
-	if err != nil {
-		return nil, err
-	}
-	utils.PublishTransactionEvent(context.Background(), &model.Transaction{
-		FromAccount: in.FromAccount,
-		ToAccount:   in.ToAccount,
-		Amount:      float64(in.Amount),
-		Timestamp:   time.Now().String(),
-	})
 	return &v1alpha1.TransferMoneyResponse{
+		Id:          trc.Id,
 		FromAccount: in.FromAccount,
 		ToAccount:   in.ToAccount,
 		Amount:      in.Amount,
+		Timestamp:   trc.Timestamp,
 	}, nil
 }

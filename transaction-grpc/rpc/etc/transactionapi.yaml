@@ -2,18 +2,11 @@ Name: transactionapi
 Host: 0.0.0.0
 Port: 8088
 ListenOn: :50055
-# Etcd:
-#   Hosts:
-#   - 127.0.0.1:2379
-#   Key: payment.rpc
-
-  # mongo database settings
 DB:
   datasource: 'mongodb://localhost:27017'
   databaseName: 'files'
   collectionName: 'firebase'
 
-# storage provider settings
 StorageProvider:
   DigitalOcean:
     SpaceName: dev

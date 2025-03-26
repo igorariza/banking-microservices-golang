@@ -47,7 +47,7 @@ func main() {
 func startGRPCServer(ctx *svc.ServiceContext) {
 	var g config.ConfigGrpc
 	g.Name = "transactionapi.rpc"
-	g.ListenOn = ":50055"
+	g.ListenOn = os.Getenv("TRANSACTION_API_PORT")
 	conf.MustLoad(*configFile, &g)
 
 	s := zrpc.MustNewServer(g.RpcServerConf, func(grpcServer *grpc.Server) {
@@ -80,7 +80,6 @@ func corsMiddleware() rest.Middleware {
 	}
 }
 
-// Function to load service configuration
 func getServiceConfig() *config.Config {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)

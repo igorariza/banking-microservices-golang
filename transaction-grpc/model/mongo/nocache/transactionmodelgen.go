@@ -56,7 +56,7 @@ func (m *defaultTransactionModel) TransferMoney(ctx context.Context, data *v1alp
 		return nil, err
 	}
 	trs := &Transaction{
-		ID:          uuid.New().String(),
+		Id:          uuid.New().String(),
 		FromAccount: data.FromAccount,
 		ToAccount:   data.FromAccount,
 		Amount:      float64(data.Amount),
@@ -65,7 +65,11 @@ func (m *defaultTransactionModel) TransferMoney(ctx context.Context, data *v1alp
 	_, err = m.CreateTransaction(ctx, trs)
 
 	return &v1alpha1.TransferMoneyResponse{
-		Id: trs.ID,
+		Id:          trs.Id,
+		FromAccount: trs.FromAccount,
+		ToAccount:   trs.ToAccount,
+		Amount:      float32(trs.Amount),
+		Timestamp:   trs.Timestamp,
 	}, nil
 }
 
@@ -74,13 +78,14 @@ func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, dat
 		log.Println("account is required")
 		return nil, errors.New("account is required")
 	}
-	rsp := &v1alpha1.GetTransactionHistoryResponse{}
-	filter := bson.D{{"id", data.AccountId}}
+	filter := bson.D{{"from_account", data.AccountId}}
 	cursor, err := m.conn.Database().Collection("transactions").Find(ctx, filter)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, nil
+			log.Println("No transactions found for account:", data.AccountId)
+			return &v1alpha1.GetTransactionHistoryResponse{Transactions: []*v1alpha1.Transaction{}}, nil
 		}
+		return nil, fmt.Errorf("error querying transactions: %w", err)
 	}
 	defer cursor.Close(ctx)
 
@@ -92,7 +97,7 @@ func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, dat
 		}
 
 		transactions = append(transactions, &v1alpha1.Transaction{
-			Id:          txn.ID,
+			Id:          txn.Id,
 			FromAccount: txn.FromAccount,
 			ToAccount:   txn.ToAccount,
 			Amount:      float32(txn.Amount),
@@ -100,9 +105,9 @@ func (m *defaultTransactionModel) GetTransactionHistory(ctx context.Context, dat
 		})
 	}
 
-	rsp.Transactions = transactions
-
-	return rsp, nil
+	return &v1alpha1.GetTransactionHistoryResponse{
+		Transactions: transactions,
+	}, nil
 }
 
 func (m *defaultTransactionModel) UpdateAccountBalance(ctx context.Context, account *Account) (*Account, error) {
